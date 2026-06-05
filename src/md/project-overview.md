@@ -1,6 +1,6 @@
 # Project Overview
 
-NDT Market backend là API cho website siêu thị online theo mô hình tương tự Kingfoodmart/Bách Hóa Xanh.
+NDT Market backend is the API service for an online supermarket website.
 
 ## Tech stack
 
@@ -17,25 +17,54 @@ NDT Market backend là API cho website siêu thị online theo mô hình tương
 - dotenv
 - bcryptjs
 
-## Cấu trúc chính
+## Main structure
 
-- `src/app.ts`: Cấu hình Express app, middleware và routes.
-- `src/server.ts`: Khởi động HTTP server và kết nối MongoDB.
-- `src/configs`: Cấu hình env và database.
-- `src/modules`: Các module nghiệp vụ.
-- `src/middlewares`: Middleware dùng chung.
-- `src/utils`: Tiện ích dùng chung.
-- `src/validations`: Validation middleware/schema dùng chung.
-- `src/types`: TypeScript types dùng chung.
-- `src/constants`: Hằng số dùng chung.
-- `src/md`: Tài liệu chức năng.
+- `src/app.ts`: Creates the Express app, registers global middleware, and mounts all API routes at `/api/v1`.
+- `src/server.ts`: Starts the HTTP server and manages MongoDB connection lifecycle.
+- `src/configs`: Environment, database, and logger configuration.
+- `src/constants`: Shared constants such as HTTP status, roles, order status, and payment status.
+- `src/middlewares`: Shared Express middlewares for auth, validation, errors, and not-found handling.
+- `src/utils`: Shared helpers such as `ApiError`, `ApiResponse`, `catchAsync`, token generation, and slug creation.
+- `src/modules`: Business modules using a clean architecture/module-based skeleton.
+- `src/routes`: Central route aggregator for API modules.
+- `src/md`: Project and feature documentation.
+
+## Module format
+
+Each module uses this file format:
+
+```text
+module/
+├── module.model.ts
+├── module.validation.ts
+├── module.service.ts
+├── module.controller.ts
+└── module.route.ts
+```
+
+## Current modules
+
+- `auth`
+- `users`
+- `categories`
+- `brands`
+- `products`
+- `stores`
+- `inventories`
+- `carts`
+- `orders`
+- `payments`
+- `promotions`
+- `coupons`
+- `reviews`
+- `banners`
+- `articles`
+- `admin`
 
 ## Import alias
 
-Dự án dùng alias `@/` trỏ tới thư mục `src`.
-
-Ví dụ:
+The project uses `@/` as an alias to `src`.
 
 ```ts
-import { env } from "@/configs/env.config";
+import { env } from "@/configs/env";
 ```

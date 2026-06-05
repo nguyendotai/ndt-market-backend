@@ -1,9 +1,9 @@
 import { createServer } from "node:http";
 
 import { createApp } from "@/app";
-import { connectMongoDB, disconnectMongoDB } from "@/configs/database.config";
-import { env } from "@/configs/env.config";
-import { logger } from "@/utils/logger";
+import { connectMongoDB, disconnectMongoDB } from "@/configs/database";
+import { env } from "@/configs/env";
+import { logger } from "@/configs/logger";
 
 const app = createApp();
 const server = createServer(app);

@@ -3,11 +3,11 @@ import express, { Application } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
-import { env } from "@/configs/env.config";
+import { env } from "@/configs/env";
+import { logger } from "@/configs/logger";
 import { errorHandler } from "@/middlewares/error.middleware";
-import { notFoundHandler } from "@/middlewares/not-found.middleware";
-import { apiRoutes } from "@/modules/routes";
-import { logger } from "@/utils/logger";
+import { notFoundHandler } from "@/middlewares/notFound.middleware";
+import { routes } from "@/routes";
 
 export const createApp = (): Application => {
   const app = express();
@@ -29,7 +29,7 @@ export const createApp = (): Application => {
     })
   );
 
-  app.use(env.API_PREFIX, apiRoutes);
+  app.use(env.API_PREFIX, routes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

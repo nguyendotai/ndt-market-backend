@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 
 import { HTTP_STATUS } from "@/constants";
-import { AppError } from "@/utils/app-error";
-import { logger } from "@/utils/logger";
+import { logger } from "@/configs/logger";
+import { ApiError } from "@/utils/ApiError";
 
 export const errorHandler = (
   error: unknown,
@@ -20,7 +20,7 @@ export const errorHandler = (
     return;
   }
 
-  if (error instanceof AppError) {
+  if (error instanceof ApiError) {
     res.status(error.statusCode).json({
       success: false,
       message: error.message
