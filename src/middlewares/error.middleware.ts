@@ -1,0 +1,37 @@
+import { NextFunction, Request, Response } from "express";
+import { ZodError } from "zod";
+
+import { HTTP_STATUS } from "@/constants";
+import { AppError } from "@/utils/app-error";
+import { logger } from "@/utils/logger";
+
+export const errorHandler = (
+  error: unknown,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+): void => {
+  if (error instanceof ZodError) {
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      message: "Validation failed",
+      errors: error.flatten()
+    });
+    return;
+  }
+
+  if (error instanceof AppError) {
+    res.status(error.statusCode).json({
+      success: false,
+      message: error.message
+    });
+    return;
+  }
+
+  logger.error("Unhandled error", error);
+
+  res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+    success: false,
+    message: "Internal server error"
+  });
+};
