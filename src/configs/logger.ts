@@ -10,13 +10,20 @@ export const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
     winston.format.splat(),
-    isProduction ? winston.format.json() : winston.format.prettyPrint()
+    isProduction
+      ? winston.format.json()
+      : winston.format.combine(
+          winston.format.colorize(),
+          winston.format.printf(({ level, message, stack, timestamp }) => {
+            const logMessage = stack ?? message;
+
+            return `${timestamp} ${level}: ${logMessage}`;
+          })
+        )
   ),
   transports: [
     new winston.transports.Console({
-      format: isProduction
-        ? winston.format.json()
-        : winston.format.combine(winston.format.colorize(), winston.format.simple())
+      stderrLevels: ["error"]
     })
   ]
 });

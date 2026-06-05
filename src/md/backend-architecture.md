@@ -24,6 +24,17 @@ Each current module exposes a basic `GET /` endpoint that returns a readiness re
 - `*.controller.ts`: HTTP request/response handling.
 - `*.route.ts`: Express route definitions.
 
+## Shared API utilities
+
+- `ApiResponse` returns successful responses with `success`, `message`, `data`, and optional `meta`.
+- `ApiError` represents operational errors with `statusCode`, `message`, and `isOperational`.
+- `catchAsync` forwards rejected async controller promises to the global error handler.
+- `validate` uses Zod schemas for `body`, `params`, and `query`.
+- `errorHandler` returns failed responses with `success: false`, `message`, and optional `errors`.
+- `notFoundHandler` returns a consistent 404 response for unknown routes.
+- `logger` centralizes Winston console logging.
+- `env` validates required environment variables before the server starts.
+
 ## Documentation rule
 
 Whenever a feature is added or changed, update an existing file or create a new file inside `src/md`.
