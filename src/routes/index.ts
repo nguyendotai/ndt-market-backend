@@ -9,18 +9,21 @@ import { cartsRoute } from "@/modules/carts/carts.route";
 import { categoriesRoute } from "@/modules/categories/categories.route";
 import { couponsRoute } from "@/modules/coupons/coupons.route";
 import { inventoriesRoute } from "@/modules/inventories/inventories.route";
+import { loyaltyPointsRoute } from "@/modules/loyalty-points/loyalty-points.route";
 import { ordersRoute } from "@/modules/orders/orders.route";
 import { paymentsRoute } from "@/modules/payments/payments.route";
 import { productsRoute } from "@/modules/products/products.route";
 import { promotionsRoute } from "@/modules/promotions/promotions.route";
 import { reviewsRoute } from "@/modules/reviews/reviews.route";
 import { storesRoute } from "@/modules/stores/stores.route";
+import { userAddressesRoute } from "@/modules/user-addresses/user-addresses.route";
 import { usersRoute } from "@/modules/users/users.route";
 
 export const routes = Router();
 
 routes.use("/auth", authRoute);
 routes.use("/users", usersRoute);
+routes.use("/user-addresses", userAddressesRoute);
 routes.use("/categories", categoriesRoute);
 routes.use("/brands", brandsRoute);
 routes.use("/products", productsRoute);
@@ -34,4 +37,5 @@ routes.use("/coupons", couponsRoute);
 routes.use("/reviews", reviewsRoute);
 routes.use("/banners", bannersRoute);
 routes.use("/articles", articlesRoute);
+routes.use("/loyalty-points", loyaltyPointsRoute);
 routes.use("/admin", adminRoute);

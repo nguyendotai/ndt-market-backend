@@ -1,8 +1,8 @@
-# Project Overview
+# Tổng Quan Dự Án
 
-NDT Market backend is the API service for an online supermarket website.
+NDT Market backend là dịch vụ API cho website siêu thị online.
 
-## Tech stack
+## Công nghệ sử dụng
 
 - Node.js
 - Express.js
@@ -17,21 +17,21 @@ NDT Market backend is the API service for an online supermarket website.
 - dotenv
 - bcryptjs
 
-## Main structure
+## Cấu trúc chính
 
-- `src/app.ts`: Creates the Express app, registers global middleware, and mounts all API routes at `/api/v1`.
-- `src/server.ts`: Starts the HTTP server and manages MongoDB connection lifecycle.
-- `src/configs`: Environment, database, and logger configuration.
-- `src/constants`: Shared constants such as HTTP status, roles, order status, and payment status.
-- `src/middlewares`: Shared Express middlewares for auth, validation, errors, and not-found handling.
-- `src/utils`: Shared helpers such as `ApiError`, `ApiResponse`, `catchAsync`, token generation, and slug creation.
-- `src/modules`: Business modules using a clean architecture/module-based skeleton.
-- `src/routes`: Central route aggregator for API modules.
-- `src/md`: Project and feature documentation.
+- `src/app.ts`: Tạo Express app, đăng ký middleware toàn cục và mount toàn bộ API route tại `/api/v1`.
+- `src/server.ts`: Khởi động HTTP server và quản lý vòng đời kết nối MongoDB.
+- `src/configs`: Cấu hình môi trường, database và logger.
+- `src/constants`: Hằng số dùng chung như HTTP status, role, trạng thái đơn hàng và trạng thái thanh toán.
+- `src/middlewares`: Middleware Express dùng chung cho auth, validation, error và not-found.
+- `src/utils`: Helper dùng chung như `ApiError`, `ApiResponse`, `catchAsync`, tạo token và tạo slug.
+- `src/modules`: Các module nghiệp vụ theo cấu trúc clean architecture/module-based.
+- `src/routes`: Nơi gom route trung tâm cho các API module.
+- `src/md`: Tài liệu dự án và tài liệu chức năng.
 
-## Module format
+## Format module
 
-Each module uses this file format:
+Mỗi module dùng format file sau:
 
 ```text
 module/
@@ -42,10 +42,13 @@ module/
 └── module.route.ts
 ```
 
-## Current modules
+## Module hiện có
 
 - `auth`
 - `users`
+- `user-addresses`
+- `membership-tiers`
+- `loyalty-points`
 - `categories`
 - `brands`
 - `products`
@@ -63,7 +66,7 @@ module/
 
 ## Import alias
 
-The project uses `@/` as an alias to `src`.
+Dự án dùng alias `@/` trỏ đến thư mục `src`.
 
 ```ts
 import { env } from "@/configs/env";

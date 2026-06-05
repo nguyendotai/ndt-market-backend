@@ -1,10 +1,10 @@
-# Auth And User Module
+# Module Xác Thực Và Người Dùng
 
-The Auth and User modules provide the foundation for customer and staff authentication in the online supermarket backend.
+Module Auth và User cung cấp nền tảng xác thực cho khách hàng, nhân viên và quản trị viên trong backend siêu thị online.
 
-## User model
+## Model người dùng
 
-`src/modules/users/users.model.ts` defines the user schema with:
+`src/modules/users/users.model.ts` định nghĩa schema người dùng với các trường:
 
 - `fullName`
 - `phone`
@@ -17,20 +17,20 @@ The Auth and User modules provide the foundation for customer and staff authenti
 - `totalPoints`
 - timestamps
 
-Passwords are hashed with `bcryptjs` before saving and removed from JSON/object responses.
+Mật khẩu được hash bằng `bcryptjs` trước khi lưu và không được trả về trong JSON/object response.
 
-## Auth APIs
+## API xác thực
 
-All auth routes are mounted under `/api/v1/auth`.
+Tất cả route xác thực được mount dưới `/api/v1/auth`.
 
-- `POST /register`: Creates a customer account and returns an access token.
-- `POST /login`: Validates credentials and returns an access token.
-- `GET /me`: Returns the authenticated user.
-- `POST /logout`: Returns a logout acknowledgement for token-based clients.
-- `PATCH /change-password`: Changes the authenticated user's password.
+- `POST /register`: Tạo tài khoản khách hàng và trả về access token.
+- `POST /login`: Kiểm tra thông tin đăng nhập và trả về access token.
+- `GET /me`: Trả về thông tin người dùng đang đăng nhập.
+- `POST /logout`: Trả về xác nhận đăng xuất cho client dùng token.
+- `PATCH /change-password`: Đổi mật khẩu của người dùng đang đăng nhập.
 
-## Auth middleware
+## Middleware xác thực
 
-`authMiddleware` validates a JWT access token, loads the active user, and attaches it to `req.user`.
+`authMiddleware` kiểm tra JWT access token, tải người dùng đang hoạt động và gắn vào `req.user`.
 
-`authorizeRoles(...roles)` restricts routes to specific user roles.
+`authorizeRoles(...roles)` giới hạn route theo các role được phép truy cập.

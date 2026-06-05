@@ -17,6 +17,6 @@ API dùng để kiểm tra server backend có đang chạy hay không.
 }
 ```
 
-### Ghi chú frontend
+### Ghi chú cho frontend
 
 Frontend có thể gọi endpoint này để kiểm tra trạng thái API trước khi hiển thị hoặc debug kết nối backend.

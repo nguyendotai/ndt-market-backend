@@ -1,12 +1,12 @@
-# Backend Architecture
+# Kiến Trúc Backend
 
-The backend now follows a clean architecture/module-based layout for the online supermarket domain.
+Backend đang dùng cấu trúc clean architecture/module-based cho hệ thống siêu thị online.
 
-## Route mounting
+## Mount route
 
-All module routes are collected in `src/routes/index.ts` and mounted by `src/app.ts` at `/api/v1`.
+Tất cả route của module được gom tại `src/routes/index.ts` và được `src/app.ts` mount vào `/api/v1`.
 
-Example:
+Ví dụ:
 
 ```text
 GET /api/v1/products
@@ -14,27 +14,27 @@ GET /api/v1/orders
 GET /api/v1/admin
 ```
 
-Each current module exposes a basic `GET /` endpoint that returns a readiness response. These endpoints are placeholders for future business APIs.
+Mỗi module chịu trách nhiệm cho một nhóm nghiệp vụ riêng. Các endpoint cơ bản ban đầu có thể dùng để kiểm tra module đã được mount đúng.
 
-## Module responsibilities
+## Trách nhiệm của từng file trong module
 
-- `*.model.ts`: Database schema/model or domain type.
-- `*.validation.ts`: Request validation schemas.
-- `*.service.ts`: Business logic and data access coordination.
-- `*.controller.ts`: HTTP request/response handling.
-- `*.route.ts`: Express route definitions.
+- `*.model.ts`: Schema/model database hoặc type/domain model.
+- `*.validation.ts`: Schema validate request.
+- `*.service.ts`: Xử lý nghiệp vụ và điều phối truy cập dữ liệu.
+- `*.controller.ts`: Xử lý request/response HTTP.
+- `*.route.ts`: Khai báo route Express.
 
-## Shared API utilities
+## Utility API dùng chung
 
-- `ApiResponse` returns successful responses with `success`, `message`, `data`, and optional `meta`.
-- `ApiError` represents operational errors with `statusCode`, `message`, and `isOperational`.
-- `catchAsync` forwards rejected async controller promises to the global error handler.
-- `validate` uses Zod schemas for `body`, `params`, and `query`.
-- `errorHandler` returns failed responses with `success: false`, `message`, and optional `errors`.
-- `notFoundHandler` returns a consistent 404 response for unknown routes.
-- `logger` centralizes Winston console logging.
-- `env` validates required environment variables before the server starts.
+- `ApiResponse`: Chuẩn hóa response thành công với `success`, `message`, `data` và `meta` tùy chọn.
+- `ApiError`: Đại diện cho lỗi nghiệp vụ với `statusCode`, `message` và `isOperational`.
+- `catchAsync`: Chuyển lỗi từ async controller đến global error handler.
+- `validate`: Dùng Zod để validate `body`, `params` và `query`.
+- `errorHandler`: Trả về response lỗi thống nhất với `success: false`, `message` và `errors` tùy chọn.
+- `notFoundHandler`: Trả về response `404` thống nhất cho route không tồn tại.
+- `logger`: Tập trung logging bằng Winston.
+- `env`: Validate biến môi trường bắt buộc trước khi server khởi động.
 
-## Documentation rule
+## Quy định tài liệu
 
-Whenever a feature is added or changed, update an existing file or create a new file inside `src/md`.
+Khi thêm mới hoặc thay đổi chức năng, phải cập nhật file hiện có hoặc tạo file mới trong `src/md`.

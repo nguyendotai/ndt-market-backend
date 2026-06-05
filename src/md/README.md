@@ -1,16 +1,19 @@
-# NDT Market Backend Documentation
+# Tài Liệu Backend NDT Market
 
-Folder này lưu tài liệu mô tả chức năng backend cho website siêu thị online.
+Thư mục này lưu tài liệu mô tả chức năng backend cho website siêu thị online.
 
-Quy ước cập nhật:
+## Quy ước cập nhật
 
-- Khi thêm module hoặc API mới, tạo hoặc cập nhật file `.md` tương ứng trong folder này.
+- Khi thêm module hoặc API mới, tạo hoặc cập nhật file `.md` tương ứng trong thư mục này.
 - Khi thay đổi logic, request, response, middleware hoặc validation của một chức năng, cập nhật tài liệu liên quan.
 - Nếu thay đổi có ảnh hưởng đến frontend, ghi rõ endpoint, payload và response để frontend dễ tích hợp.
 
-Tài liệu hiện có:
+## Tài liệu hiện có
 
-- `project-overview.md`: Tổng quan dự án và tech stack.
+- `project-overview.md`: Tổng quan dự án, tech stack và cấu trúc module.
+- `backend-architecture.md`: Kiến trúc backend, route mounting và utility dùng chung.
+- `auth-user.md`: Module xác thực và người dùng.
+- `customer-modules.md`: Địa chỉ người dùng, hạng thành viên và điểm tích lũy.
 - `health-api.md`: API kiểm tra trạng thái server.
 - `database.md`: Kết nối MongoDB bằng Mongoose.
 - `error-handling.md`: Global error handler và định dạng lỗi.
