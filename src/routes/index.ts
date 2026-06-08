@@ -29,7 +29,7 @@ routes.use("/brands", brandsRoute);
 routes.use("/products", productsRoute);
 routes.use("/stores", storesRoute);
 routes.use("/inventories", inventoriesRoute);
-routes.use("/carts", cartsRoute);
+routes.use("/cart", cartsRoute);
 routes.use("/orders", ordersRoute);
 routes.use("/payments", paymentsRoute);
 routes.use("/promotions", promotionsRoute);
