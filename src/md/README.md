@@ -16,6 +16,7 @@ Thư mục này lưu tài liệu mô tả chức năng backend cho website siêu
 - `customer-modules.md`: Địa chỉ người dùng, hạng thành viên và điểm tích lũy.
 - `catalog-modules.md`: Danh mục và thương hiệu.
 - `product-module.md`: Sản phẩm, biến thể và hình ảnh sản phẩm.
+- `store-inventory-module.md`: Cửa hàng, tồn kho và lịch sử biến động kho.
 - `health-api.md`: API kiểm tra trạng thái server.
 - `database.md`: Kết nối MongoDB bằng Mongoose.
 - `error-handling.md`: Global error handler và định dạng lỗi.
