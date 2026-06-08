@@ -56,6 +56,7 @@ module/
 - `inventories`
 - `carts`
 - `orders`
+- `delivery`
 - `payments`
 - `promotions`
 - `coupons`

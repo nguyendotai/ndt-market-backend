@@ -2,6 +2,10 @@ import { FilterQuery, Types } from "mongoose";
 
 import { HTTP_STATUS, ORDER_STATUS, OrderStatus, PAYMENT_STATUS } from "@/constants";
 import { CartItemModel, CartModel } from "@/modules/carts/carts.model";
+import {
+  releaseDeliveryTimeSlot,
+  reserveDeliveryTimeSlot
+} from "@/modules/delivery/delivery.service";
 import { releaseStock, reserveStock } from "@/modules/inventories/inventories.service";
 import {
   Order,
@@ -97,6 +101,10 @@ const releaseOrderStock = async (order: Order, changedBy?: Types.ObjectId, note?
   );
 };
 
+const releaseOrderTimeSlot = async (order: Order) => {
+  await releaseDeliveryTimeSlot(order.timeSlot);
+};
+
 export const checkout = async (userId: string | Types.ObjectId, payload: CheckoutInput) => {
   const cart = await CartModel.findOne({ user: userId });
 
@@ -111,10 +119,16 @@ export const checkout = async (userId: string | Types.ObjectId, payload: Checkou
   }
 
   const reservedItems: ReservedItem[] = [];
+  let reservedTimeSlot = false;
 
   try {
     const orderItemsPayload = [];
     let subtotal = 0;
+
+    if (payload.timeSlot) {
+      await reserveDeliveryTimeSlot(payload.timeSlot, cart.store);
+      reservedTimeSlot = true;
+    }
 
     for (const cartItem of cartItems) {
       const variant = await ProductVariantModel.findOne({
@@ -207,6 +221,10 @@ export const checkout = async (userId: string | Types.ObjectId, payload: Checkou
       )
     );
 
+    if (reservedTimeSlot) {
+      await releaseDeliveryTimeSlot(payload.timeSlot);
+    }
+
     throw error;
   }
 };
@@ -243,6 +261,7 @@ export const cancelMyOrder = async (
   }
 
   await releaseOrderStock(order, order.user, payload.note ?? "Customer cancelled order");
+  await releaseOrderTimeSlot(order);
   order.status = ORDER_STATUS.CANCELLED;
   await order.save();
   await createStatusHistory(
@@ -290,6 +309,7 @@ export const updateOrderStatus = async (
     previousStatus !== ORDER_STATUS.REFUNDED
   ) {
     await releaseOrderStock(order, changedBy, payload.note ?? "Admin cancelled order");
+    await releaseOrderTimeSlot(order);
   }
 
   order.status = payload.status;

@@ -5,6 +5,10 @@ import { ROLES } from "@/constants";
 import { getAdmin } from "@/modules/admin/admin.controller";
 import { adminBrandsRoute } from "@/modules/brands/brands.admin.route";
 import { adminCategoriesRoute } from "@/modules/categories/categories.admin.route";
+import {
+  adminDeliveryRoute,
+  adminShipmentsRoute
+} from "@/modules/delivery/delivery.admin.route";
 import { adminInventoriesRoute } from "@/modules/inventories/inventories.admin.route";
 import { adminLoyaltyPointsRoute } from "@/modules/loyalty-points/loyalty-points.admin.route";
 import { membershipTiersRoute } from "@/modules/membership-tiers/membership-tiers.route";
@@ -29,3 +33,5 @@ adminRoute.use("/stores", adminStoresRoute);
 adminRoute.use("/inventories", adminInventoriesRoute);
 adminRoute.use("/orders", adminOrdersRoute);
 adminRoute.use("/payments", adminPaymentsRoute);
+adminRoute.use("/delivery", adminDeliveryRoute);
+adminRoute.use("/shipments", adminShipmentsRoute);

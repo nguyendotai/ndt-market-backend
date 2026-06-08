@@ -21,7 +21,7 @@ export const checkoutSchema = {
     .object({
       deliveryType: z.nativeEnum(DELIVERY_TYPES),
       address: orderAddressSchema.optional(),
-      timeSlot: z.string().trim().optional(),
+      timeSlot: objectIdSchema.optional(),
       note: z.string().trim().optional(),
       shippingFee: z.number().min(0).default(0),
       discountTotal: z.number().min(0).default(0)
@@ -29,6 +29,10 @@ export const checkoutSchema = {
     .refine((data) => data.deliveryType !== DELIVERY_TYPES.DELIVERY || data.address, {
       message: "Address is required for delivery orders",
       path: ["address"]
+    })
+    .refine((data) => data.deliveryType !== DELIVERY_TYPES.DELIVERY || data.timeSlot, {
+      message: "Time slot is required for delivery orders",
+      path: ["timeSlot"]
     })
 };
 
