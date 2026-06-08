@@ -8,6 +8,7 @@ import { adminCategoriesRoute } from "@/modules/categories/categories.admin.rout
 import { adminInventoriesRoute } from "@/modules/inventories/inventories.admin.route";
 import { adminLoyaltyPointsRoute } from "@/modules/loyalty-points/loyalty-points.admin.route";
 import { membershipTiersRoute } from "@/modules/membership-tiers/membership-tiers.route";
+import { adminOrdersRoute } from "@/modules/orders/orders.admin.route";
 import { adminProductsRoute } from "@/modules/products/products.admin.route";
 import { adminStoresRoute } from "@/modules/stores/stores.admin.route";
 import { adminUserAddressesRoute } from "@/modules/user-addresses/user-addresses.admin.route";
@@ -25,3 +26,4 @@ adminRoute.use("/brands", adminBrandsRoute);
 adminRoute.use("/products", adminProductsRoute);
 adminRoute.use("/stores", adminStoresRoute);
 adminRoute.use("/inventories", adminInventoriesRoute);
+adminRoute.use("/orders", adminOrdersRoute);
