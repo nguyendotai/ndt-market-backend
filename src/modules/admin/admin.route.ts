@@ -3,6 +3,11 @@ import { Router } from "express";
 import { authMiddleware, authorizeRoles } from "@/middlewares/auth.middleware";
 import { ROLES } from "@/constants";
 import { getAdmin } from "@/modules/admin/admin.controller";
+import {
+  adminArticleCategoriesRoute,
+  adminArticlesRoute
+} from "@/modules/articles/articles.admin.route";
+import { adminBannersRoute } from "@/modules/banners/banners.admin.route";
 import { adminBrandsRoute } from "@/modules/brands/brands.admin.route";
 import { adminCategoriesRoute } from "@/modules/categories/categories.admin.route";
 import { adminCouponsRoute } from "@/modules/coupons/coupons.admin.route";
@@ -31,6 +36,9 @@ adminRoute.use("/membership-tiers", membershipTiersRoute);
 adminRoute.use("/loyalty-points", adminLoyaltyPointsRoute);
 adminRoute.use("/categories", adminCategoriesRoute);
 adminRoute.use("/brands", adminBrandsRoute);
+adminRoute.use("/banners", adminBannersRoute);
+adminRoute.use("/article-categories", adminArticleCategoriesRoute);
+adminRoute.use("/articles", adminArticlesRoute);
 adminRoute.use("/products", adminProductsRoute);
 adminRoute.use("/promotions", adminPromotionsRoute);
 adminRoute.use("/coupons", adminCouponsRoute);
