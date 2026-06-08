@@ -61,6 +61,7 @@ module/
 - `promotions`
 - `coupons`
 - `reviews`
+- `wishlists`
 - `banners`
 - `articles`
 - `admin`

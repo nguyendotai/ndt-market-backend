@@ -21,12 +21,14 @@ import { reviewsRoute } from "@/modules/reviews/reviews.route";
 import { storesRoute } from "@/modules/stores/stores.route";
 import { userAddressesRoute } from "@/modules/user-addresses/user-addresses.route";
 import { usersRoute } from "@/modules/users/users.route";
+import { wishlistsRoute } from "@/modules/wishlists/wishlists.route";
 
 export const routes = Router();
 
 routes.use("/auth", authRoute);
 routes.use("/users", usersRoute);
 routes.use("/user-addresses", userAddressesRoute);
+routes.use("/wishlist", wishlistsRoute);
 routes.use("/categories", categoriesRoute);
 routes.use("/brands", brandsRoute);
 routes.use("/products", productsRoute);
