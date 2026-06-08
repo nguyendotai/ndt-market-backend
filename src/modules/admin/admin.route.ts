@@ -9,6 +9,7 @@ import { adminInventoriesRoute } from "@/modules/inventories/inventories.admin.r
 import { adminLoyaltyPointsRoute } from "@/modules/loyalty-points/loyalty-points.admin.route";
 import { membershipTiersRoute } from "@/modules/membership-tiers/membership-tiers.route";
 import { adminOrdersRoute } from "@/modules/orders/orders.admin.route";
+import { adminPaymentsRoute } from "@/modules/payments/payments.admin.route";
 import { adminProductsRoute } from "@/modules/products/products.admin.route";
 import { adminStoresRoute } from "@/modules/stores/stores.admin.route";
 import { adminUserAddressesRoute } from "@/modules/user-addresses/user-addresses.admin.route";
@@ -27,3 +28,4 @@ adminRoute.use("/products", adminProductsRoute);
 adminRoute.use("/stores", adminStoresRoute);
 adminRoute.use("/inventories", adminInventoriesRoute);
 adminRoute.use("/orders", adminOrdersRoute);
+adminRoute.use("/payments", adminPaymentsRoute);

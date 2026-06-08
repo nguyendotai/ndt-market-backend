@@ -19,6 +19,7 @@ Thư mục này lưu tài liệu mô tả chức năng backend cho website siêu
 - `store-inventory-module.md`: Cửa hàng, tồn kho và lịch sử biến động kho.
 - `cart-module.md`: Giỏ hàng của khách hàng.
 - `order-checkout-module.md`: Checkout và quản lý đơn hàng.
+- `payment-module.md`: Thanh toán đơn hàng.
 - `health-api.md`: API kiểm tra trạng thái server.
 - `database.md`: Kết nối MongoDB bằng Mongoose.
 - `error-handling.md`: Global error handler và định dạng lỗi.
