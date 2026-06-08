@@ -21,6 +21,7 @@ Thư mục này lưu tài liệu mô tả chức năng backend cho website siêu
 - `order-checkout-module.md`: Checkout và quản lý đơn hàng.
 - `payment-module.md`: Thanh toán đơn hàng.
 - `delivery-module.md`: Khung giờ giao hàng, shipment và shipper.
+- `promotion-coupon-module.md`: Khuyến mãi và mã giảm giá.
 - `health-api.md`: API kiểm tra trạng thái server.
 - `database.md`: Kết nối MongoDB bằng Mongoose.
 - `error-handling.md`: Global error handler và định dạng lỗi.
