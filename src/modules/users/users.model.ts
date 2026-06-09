@@ -18,6 +18,7 @@ export type User = {
   password: string;
   avatar?: string;
   role: Role;
+  permissions?: string[];
   status: UserStatus;
   membershipTier: string;
   totalPoints: number;
@@ -61,6 +62,10 @@ const userSchema = new Schema<User>(
       type: String,
       enum: Object.values(ROLES),
       default: ROLES.CUSTOMER
+    },
+    permissions: {
+      type: [String],
+      default: []
     },
     status: {
       type: String,

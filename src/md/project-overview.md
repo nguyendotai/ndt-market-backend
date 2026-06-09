@@ -65,6 +65,7 @@ module/
 - `banners`
 - `articles`
 - `admin`
+- `admin-rbac`
 
 ## Import alias
 
