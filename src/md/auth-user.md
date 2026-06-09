@@ -29,6 +29,17 @@ Tất cả route xác thực được mount dưới `/api/v1/auth`.
 - `POST /logout`: Trả về xác nhận đăng xuất cho client dùng token.
 - `PATCH /change-password`: Đổi mật khẩu của người dùng đang đăng nhập.
 
+Body đăng ký yêu cầu:
+
+- `fullName`
+- `email`
+- `password`
+- `confirmPassword`
+- `phone` tùy chọn
+- `avatar` tùy chọn
+
+`confirmPassword` phải trùng với `password` và không được lưu vào database.
+
 ## Middleware xác thực
 
 `authMiddleware` kiểm tra JWT access token, tải người dùng đang hoạt động và gắn vào `req.user`.

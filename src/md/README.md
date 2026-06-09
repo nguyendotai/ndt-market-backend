@@ -25,6 +25,7 @@ Thư mục này lưu tài liệu mô tả chức năng backend cho website siêu
 - `review-wishlist-module.md`: Đánh giá sản phẩm và wishlist.
 - `cms-module.md`: Banner và bài viết CMS.
 - `admin-rbac-module.md`: Phân quyền admin RBAC.
+- `upload-module.md`: Upload ảnh local bằng multer.
 - `health-api.md`: API kiểm tra trạng thái server.
 - `database.md`: Kết nối MongoDB bằng Mongoose.
 - `error-handling.md`: Global error handler và định dạng lỗi.

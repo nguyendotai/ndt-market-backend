@@ -22,11 +22,13 @@ import { storesRoute } from "@/modules/stores/stores.route";
 import { userAddressesRoute } from "@/modules/user-addresses/user-addresses.route";
 import { usersRoute } from "@/modules/users/users.route";
 import { wishlistsRoute } from "@/modules/wishlists/wishlists.route";
+import { uploadsRoute } from "@/modules/uploads/uploads.route";
 
 export const routes = Router();
 
 routes.use("/auth", authRoute);
 routes.use("/users", usersRoute);
+routes.use("/uploads", uploadsRoute);
 routes.use("/user-addresses", userAddressesRoute);
 routes.use("/wishlist", wishlistsRoute);
 routes.use("/categories", categoriesRoute);

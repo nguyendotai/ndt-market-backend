@@ -6,13 +6,19 @@ const passwordSchema = z
   .max(72, "Password must not exceed 72 characters");
 
 export const registerSchema = {
-  body: z.object({
-    fullName: z.string().trim().min(1, "Full name is required"),
-    phone: z.string().trim().min(8).max(20).optional(),
-    email: z.string().trim().email("Email is invalid").toLowerCase(),
-    password: passwordSchema,
-    avatar: z.string().trim().url("Avatar must be a valid URL").optional()
-  })
+  body: z
+    .object({
+      fullName: z.string().trim().min(1, "Full name is required"),
+      phone: z.string().trim().min(8).max(20).optional(),
+      email: z.string().trim().email("Email is invalid").toLowerCase(),
+      password: passwordSchema,
+      confirmPassword: z.string().min(1, "Confirm password is required"),
+      avatar: z.string().trim().url("Avatar must be a valid URL").optional()
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "Confirm password must match password",
+      path: ["confirmPassword"]
+    })
 };
 
 export const loginSchema = {
