@@ -13,6 +13,38 @@ const numberQuerySchema = z.preprocess(
   z.number().min(0).optional()
 );
 
+const booleanQuerySchema = z.preprocess((value) => {
+  if (value === undefined || value === "") {
+    return undefined;
+  }
+
+  if (value === "true" || value === true) {
+    return true;
+  }
+
+  if (value === "false" || value === false) {
+    return false;
+  }
+
+  return value;
+}, z.boolean().optional());
+
+const tagsQuerySchema = z.preprocess((value) => {
+  if (value === undefined || value === "") {
+    return undefined;
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value.split(",").map((tag) => tag.trim()).filter(Boolean);
+  }
+
+  return value;
+}, z.array(z.string().trim().min(1)).optional());
+
 const positiveIntQuerySchema = (defaultValue: number) =>
   z.preprocess(
     (value) => (value === undefined || value === "" ? defaultValue : Number(value)),
@@ -27,8 +59,22 @@ export const productListQuerySchema = {
       brand: z.string().trim().optional(),
       minPrice: numberQuerySchema,
       maxPrice: numberQuerySchema,
+      origin: z.string().trim().optional(),
+      tags: tagsQuerySchema,
+      rating: numberQuerySchema.pipe(z.number().min(0).max(5).optional()),
+      inStock: booleanQuerySchema,
+      storeId: objectIdSchema.optional(),
       sort: z
-        .enum(["newest", "oldest", "price_asc", "price_desc", "sold_desc", "rating_desc"])
+        .enum([
+          "newest",
+          "oldest",
+          "price_asc",
+          "price_desc",
+          "best_selling",
+          "rating",
+          "sold_desc",
+          "rating_desc"
+        ])
         .default("newest"),
       page: positiveIntQuerySchema(1),
       limit: positiveIntQuerySchema(10)

@@ -3,6 +3,7 @@ import { FilterQuery, Types } from "mongoose";
 import { HTTP_STATUS } from "@/constants";
 import { BrandModel } from "@/modules/brands/brands.model";
 import { CategoryModel } from "@/modules/categories/categories.model";
+import { InventoryModel } from "@/modules/inventories/inventories.model";
 import {
   PRODUCT_STATUSES,
   PRODUCT_VARIANT_STATUSES,
@@ -39,6 +40,8 @@ const getSortOption = (sort: ProductListQuery["sort"]) => {
     oldest: { createdAt: 1 },
     price_asc: { createdAt: -1 },
     price_desc: { createdAt: -1 },
+    best_selling: { soldCount: -1 },
+    rating: { ratingAverage: -1, ratingCount: -1 },
     sold_desc: { soldCount: -1 },
     rating_desc: { ratingAverage: -1, ratingCount: -1 }
   } as const;
@@ -119,6 +122,39 @@ const getProductIdsByPrice = async (minPrice?: number, maxPrice?: number) => {
   return variants.map((variant) => variant.product);
 };
 
+const getProductIdsByStock = async (storeId?: string) => {
+  const inventories = await InventoryModel.find({
+    ...(storeId ? { store: storeId } : {}),
+    $expr: {
+      $gt: [{ $subtract: ["$quantity", "$reservedQuantity"] }, 0]
+    }
+  }).select("variant");
+
+  if (inventories.length === 0) {
+    return [];
+  }
+
+  const variants = await ProductVariantModel.find({
+    _id: { $in: inventories.map((inventory) => inventory.variant) },
+    status: PRODUCT_VARIANT_STATUSES.ACTIVE
+  }).select("product");
+
+  return variants.map((variant) => variant.product);
+};
+
+const intersectProductIds = (
+  firstIds: Types.ObjectId[] | undefined,
+  secondIds: Types.ObjectId[]
+) => {
+  if (!firstIds) {
+    return secondIds;
+  }
+
+  const secondIdSet = new Set(secondIds.map((id) => String(id)));
+
+  return firstIds.filter((id) => secondIdSet.has(String(id)));
+};
+
 const attachRelations = async (products: ProductDocumentLike[]) => {
   const productIds = products.map((product) => product._id);
   const [variants, images] = await Promise.all([
@@ -158,7 +194,19 @@ export const getPublicProducts = async (query: ProductListQuery) => {
 
   if (query.keyword) {
     const keywordRegex = new RegExp(query.keyword, "i");
-    productQuery.$or = [{ name: keywordRegex }, { sku: keywordRegex }];
+    productQuery.$or = [{ name: keywordRegex }, { sku: keywordRegex }, { description: keywordRegex }];
+  }
+
+  if (query.origin) {
+    productQuery.origin = new RegExp(query.origin, "i");
+  }
+
+  if (query.tags && query.tags.length > 0) {
+    productQuery.tags = { $in: query.tags };
+  }
+
+  if (query.rating !== undefined) {
+    productQuery.ratingAverage = { $gte: query.rating };
   }
 
   const categoryId = await resolveCategoryId(query.category);
@@ -181,30 +229,39 @@ export const getPublicProducts = async (query: ProductListQuery) => {
   }
 
   const priceProductIds = await getProductIdsByPrice(query.minPrice, query.maxPrice);
+  const stockProductIds =
+    query.storeId || query.inStock ? await getProductIdsByStock(query.storeId) : undefined;
+  const filteredProductIds =
+    stockProductIds !== undefined
+      ? intersectProductIds(priceProductIds, stockProductIds)
+      : priceProductIds;
 
-  if (priceProductIds) {
-    productQuery._id = { $in: priceProductIds };
+  if (filteredProductIds) {
+    productQuery._id = { $in: filteredProductIds };
   }
 
+  const shouldSortByPrice = query.sort === "price_asc" || query.sort === "price_desc";
   const [total, products] = await Promise.all([
     ProductModel.countDocuments(productQuery),
-    ProductModel.find(productQuery)
-      .populate("category")
-      .populate("brand")
-      .sort(getSortOption(query.sort))
-      .skip(skip)
-      .limit(limit)
+    shouldSortByPrice
+      ? ProductModel.find(productQuery).populate("category").populate("brand")
+      : ProductModel.find(productQuery)
+          .populate("category")
+          .populate("brand")
+          .sort(getSortOption(query.sort))
+          .skip(skip)
+          .limit(limit)
   ]);
 
   let productsWithRelations = await attachRelations(products);
 
-  if (query.sort === "price_asc" || query.sort === "price_desc") {
+  if (shouldSortByPrice) {
     productsWithRelations = productsWithRelations.sort((first, second) => {
       const firstPrice = getLowestProductPrice(first.variants);
       const secondPrice = getLowestProductPrice(second.variants);
 
       return query.sort === "price_asc" ? firstPrice - secondPrice : secondPrice - firstPrice;
-    });
+    }).slice(skip, skip + limit);
   }
 
   return {

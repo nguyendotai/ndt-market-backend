@@ -47,24 +47,31 @@ Model hình ảnh gồm:
 
 ## API public
 
-- `GET /api/v1/products`: Lấy danh sách sản phẩm active, có pagination, filter và search.
+- `GET /api/v1/products`: Lấy danh sách sản phẩm active, có pagination, filter và search nâng cao.
 - `GET /api/v1/products/:slug`: Lấy chi tiết sản phẩm active theo slug.
 - `GET /api/v1/products/:slug/related`: Lấy sản phẩm liên quan theo cùng danh mục.
 
 Query của `GET /products`:
 
-- `keyword`: Search theo `name` hoặc `sku`.
+- `keyword`: Search theo `name`, `sku`, `description`.
 - `category`: Lọc theo category id hoặc slug.
 - `brand`: Lọc theo brand id hoặc slug.
-- `minPrice`: Giá thấp nhất.
-- `maxPrice`: Giá cao nhất.
-- `sort`: `newest`, `oldest`, `price_asc`, `price_desc`, `sold_desc`, `rating_desc`.
+- `minPrice`: Giá thấp nhất theo variant.
+- `maxPrice`: Giá cao nhất theo variant.
+- `origin`: Lọc theo xuất xứ.
+- `tags`: Lọc theo tag, hỗ trợ chuỗi phân tách bằng dấu phẩy.
+- `rating`: Lọc sản phẩm có `ratingAverage` lớn hơn hoặc bằng giá trị này.
+- `inStock`: Nếu là `true`, chỉ trả sản phẩm còn hàng.
+- `storeId`: Nếu truyền, chỉ trả sản phẩm còn hàng tại store đó.
+- `sort`: `newest`, `price_asc`, `price_desc`, `best_selling`, `rating`.
 - `page`: Trang hiện tại.
 - `limit`: Số item mỗi trang.
 
+Response danh sách có `meta` pagination gồm `page`, `limit`, `total`, `totalPages`.
+
 ## API quản trị
 
-Các route quản trị nằm dưới `/api/v1/admin/products` và yêu cầu role `ADMIN` hoặc `SUPER_ADMIN`.
+Các route quản trị nằm dưới `/api/v1/admin/products`.
 
 - `POST /admin/products`: Tạo sản phẩm.
 - `PATCH /admin/products/:id`: Cập nhật sản phẩm.
