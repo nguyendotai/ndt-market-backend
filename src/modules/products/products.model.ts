@@ -44,6 +44,7 @@ export type ProductVariant = {
   product: Types.ObjectId;
   name: string;
   barcode?: string;
+  imageUrl?: string;
   price: number;
   salePrice?: number;
   weight?: number;
@@ -178,6 +179,11 @@ const productVariantSchema = new Schema<ProductVariant>(
       type: String,
       trim: true,
       sparse: true
+    },
+    imageUrl: {
+      type: String,
+      trim: true,
+      default: ""
     },
     price: {
       type: Number,

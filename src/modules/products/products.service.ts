@@ -21,6 +21,7 @@ import {
   UpdateProductVariantInput
 } from "@/modules/products/products.validation";
 import { ApiError } from "@/utils/ApiError";
+import { deleteCloudinaryImage, deleteCloudinaryImages } from "@/utils/cloudinary";
 import { slugify } from "@/utils/slugify";
 
 type ProductDocumentLike = Product & {
@@ -99,6 +100,51 @@ const ensureUniqueSku = async (sku: string, excludeId?: string) => {
   }
 
   return normalizedSku;
+};
+
+const generateUniqueSku = async (name: string) => {
+  const baseSku = slugify(name).replace(/-/g, "").toUpperCase().slice(0, 12) || "PRODUCT";
+
+  for (let attempt = 1; attempt <= 20; attempt += 1) {
+    const suffix = `${Date.now().toString(36)}${attempt}`.toUpperCase();
+    const sku = `NDT-${baseSku}-${suffix}`;
+    const existingProduct = await ProductModel.findOne({ sku });
+
+    if (!existingProduct) {
+      return sku;
+    }
+  }
+
+  throw new ApiError("Cannot generate product SKU", HTTP_STATUS.INTERNAL_SERVER_ERROR);
+};
+
+const ensureUniqueBarcode = async (barcode: string, excludeId?: string) => {
+  const normalizedBarcode = barcode.trim();
+  const query = excludeId
+    ? { barcode: normalizedBarcode, _id: { $ne: excludeId } }
+    : { barcode: normalizedBarcode };
+  const existingVariant = await ProductVariantModel.findOne(query);
+
+  if (existingVariant) {
+    throw new ApiError("Product variant barcode already exists", HTTP_STATUS.CONFLICT);
+  }
+
+  return normalizedBarcode;
+};
+
+const generateUniqueBarcode = async () => {
+  for (let attempt = 1; attempt <= 20; attempt += 1) {
+    const timestampPart = Date.now().toString().slice(-9);
+    const randomPart = Math.floor(100 + Math.random() * 900).toString();
+    const barcode = `893${timestampPart}${randomPart}${attempt}`;
+    const existingVariant = await ProductVariantModel.findOne({ barcode });
+
+    if (!existingVariant) {
+      return barcode;
+    }
+  }
+
+  throw new ApiError("Cannot generate product variant barcode", HTTP_STATUS.INTERNAL_SERVER_ERROR);
 };
 
 const getProductIdsByPrice = async (minPrice?: number, maxPrice?: number) => {
@@ -322,7 +368,7 @@ export const getRelatedProducts = async (slug: string) => {
 export const createProduct = async (payload: CreateProductInput) => {
   const [slug, sku] = await Promise.all([
     ensureUniqueSlug(payload.name),
-    ensureUniqueSku(payload.sku)
+    payload.sku ? ensureUniqueSku(payload.sku) : generateUniqueSku(payload.name)
   ]);
 
   return ProductModel.create({
@@ -353,6 +399,10 @@ export const updateProduct = async (id: string, payload: UpdateProductInput) => 
 };
 
 export const deleteProduct = async (id: string) => {
+  const [variants, images] = await Promise.all([
+    ProductVariantModel.find({ product: id }).select("imageUrl"),
+    ProductImageModel.find({ product: id }).select("imageUrl")
+  ]);
   const product = await ProductModel.findByIdAndDelete(id);
 
   if (!product) {
@@ -363,6 +413,10 @@ export const deleteProduct = async (id: string) => {
     ProductVariantModel.deleteMany({ product: id }),
     ProductImageModel.deleteMany({ product: id })
   ]);
+  await deleteCloudinaryImages([
+    ...variants.map((variant) => variant.imageUrl),
+    ...images.map((image) => image.imageUrl)
+  ]);
 
   return product;
 };
@@ -372,9 +426,13 @@ export const createProductVariant = async (
   payload: CreateProductVariantInput
 ) => {
   await getProductByIdOrFail(productId);
+  const barcode = payload.barcode
+    ? await ensureUniqueBarcode(payload.barcode)
+    : await generateUniqueBarcode();
 
   return ProductVariantModel.create({
     ...payload,
+    barcode,
     product: productId
   });
 };
@@ -383,10 +441,20 @@ export const updateProductVariant = async (
   variantId: string,
   payload: UpdateProductVariantInput
 ) => {
-  const variant = await ProductVariantModel.findByIdAndUpdate(variantId, payload, { new: true });
+  const currentVariant = await ProductVariantModel.findById(variantId);
 
-  if (!variant) {
+  if (!currentVariant) {
     throw new ApiError("Product variant not found", HTTP_STATUS.NOT_FOUND);
+  }
+
+  const updatePayload = {
+    ...payload,
+    ...(payload.barcode ? { barcode: await ensureUniqueBarcode(payload.barcode, variantId) } : {})
+  };
+  const variant = await ProductVariantModel.findByIdAndUpdate(variantId, updatePayload, { new: true });
+
+  if (payload.imageUrl && payload.imageUrl !== currentVariant.imageUrl) {
+    await deleteCloudinaryImage(currentVariant.imageUrl);
   }
 
   return variant;
@@ -398,6 +466,8 @@ export const deleteProductVariant = async (variantId: string) => {
   if (!variant) {
     throw new ApiError("Product variant not found", HTTP_STATUS.NOT_FOUND);
   }
+
+  await deleteCloudinaryImage(variant.imageUrl);
 
   return variant;
 };
@@ -421,6 +491,8 @@ export const deleteProductImage = async (imageId: string) => {
   if (!image) {
     throw new ApiError("Product image not found", HTTP_STATUS.NOT_FOUND);
   }
+
+  await deleteCloudinaryImage(image.imageUrl);
 
   return image;
 };

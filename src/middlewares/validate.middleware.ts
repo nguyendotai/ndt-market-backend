@@ -17,7 +17,7 @@ export const validate =
     });
 
     validator.parse({
-      body: req.body,
+      body: req.body ?? {},
       params: req.params,
       query: req.query
     });

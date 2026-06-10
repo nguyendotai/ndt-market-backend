@@ -20,6 +20,15 @@ export const getInventories = catchAsync(async (req: Request, res: Response): Pr
   res.status(HTTP_STATUS.OK).json(new ApiResponse(result, "Inventories fetched successfully"));
 });
 
+export const getStockMovements = catchAsync(async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const result = await inventoryService.getStockMovements(req.query as never);
+
+  res.status(HTTP_STATUS.OK).json(new ApiResponse(result, "Stock movements fetched successfully"));
+});
+
 export const getVariantInventory = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const result = await inventoryService.getVariantInventory(
     String(req.params.variantId),

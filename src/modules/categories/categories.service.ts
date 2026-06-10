@@ -7,6 +7,7 @@ import {
   UpdateCategoryInput
 } from "@/modules/categories/categories.validation";
 import { ApiError } from "@/utils/ApiError";
+import { deleteCloudinaryImage } from "@/utils/cloudinary";
 import { slugify } from "@/utils/slugify";
 
 type CategoryTreeNode = Category & {
@@ -79,6 +80,12 @@ export const createCategory = async (payload: CreateCategoryInput) => {
 };
 
 export const updateCategory = async (id: string, payload: UpdateCategoryInput) => {
+  const currentCategory = await CategoryModel.findById(id);
+
+  if (!currentCategory) {
+    throw new ApiError("Category not found", HTTP_STATUS.NOT_FOUND);
+  }
+
   const updatePayload = {
     ...payload,
     ...(payload.name ? { slug: await ensureUniqueSlug(payload.name, id) } : {}),
@@ -89,8 +96,8 @@ export const updateCategory = async (id: string, payload: UpdateCategoryInput) =
 
   const category = await CategoryModel.findByIdAndUpdate(id, updatePayload, { new: true });
 
-  if (!category) {
-    throw new ApiError("Category not found", HTTP_STATUS.NOT_FOUND);
+  if (payload.image && payload.image !== currentCategory.image) {
+    await deleteCloudinaryImage(currentCategory.image);
   }
 
   return category;
@@ -108,6 +115,8 @@ export const deleteCategory = async (id: string) => {
   if (!category) {
     throw new ApiError("Category not found", HTTP_STATUS.NOT_FOUND);
   }
+
+  await deleteCloudinaryImage(category.image);
 
   return category;
 };

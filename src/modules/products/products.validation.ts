@@ -7,6 +7,10 @@ import {
 
 const objectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid id");
 const optionalUrlSchema = z.string().trim().url("URL is invalid").optional();
+const optionalFormUrlSchema = z.preprocess(
+  (value) => (value === "" ? undefined : value),
+  optionalUrlSchema
+);
 
 const emptyStringToUndefined = (value: unknown) => {
   if (value === "") {
@@ -68,6 +72,16 @@ const optionalBrandSchema = z.preprocess((value) => {
 
   return value;
 }, objectIdSchema.nullable().optional());
+
+const optionalSkuSchema = z.preprocess(
+  emptyStringToUndefined,
+  z.string().trim().min(1, "SKU is required").optional()
+);
+
+const optionalBarcodeSchema = z.preprocess(
+  emptyStringToUndefined,
+  z.string().trim().min(1, "Barcode is required").optional()
+);
 
 const numberQuerySchema = z.preprocess(
   (value) => (value === undefined || value === "" ? undefined : Number(value)),
@@ -180,7 +194,7 @@ const productPayloadSchema = z.object({
   category: objectIdSchema,
   brand: optionalBrandSchema,
   name: z.string().trim().min(1, "Name is required"),
-  sku: z.string().trim().min(1, "SKU is required"),
+  sku: optionalSkuSchema,
   description: z.string().trim().optional(),
   shortDescription: z.string().trim().optional(),
   unit: z.string().trim().optional(),
@@ -196,7 +210,8 @@ const productPayloadSchema = z.object({
 
 const variantBasePayloadSchema = z.object({
     name: z.string().trim().min(1, "Variant name is required"),
-    barcode: z.string().trim().optional(),
+    barcode: optionalBarcodeSchema,
+    imageUrl: optionalFormUrlSchema,
     price: z.coerce.number().min(0),
     salePrice: optionalNumberBodySchema,
     weight: optionalNumberBodySchema,

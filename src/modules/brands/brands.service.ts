@@ -2,6 +2,7 @@ import { HTTP_STATUS } from "@/constants";
 import { BrandModel } from "@/modules/brands/brands.model";
 import { CreateBrandInput, UpdateBrandInput } from "@/modules/brands/brands.validation";
 import { ApiError } from "@/utils/ApiError";
+import { deleteCloudinaryImage } from "@/utils/cloudinary";
 import { slugify } from "@/utils/slugify";
 
 const ensureUniqueSlug = async (name: string, excludeId?: string) => {
@@ -39,6 +40,12 @@ export const createBrand = async (payload: CreateBrandInput) => {
 };
 
 export const updateBrand = async (id: string, payload: UpdateBrandInput) => {
+  const currentBrand = await BrandModel.findById(id);
+
+  if (!currentBrand) {
+    throw new ApiError("Brand not found", HTTP_STATUS.NOT_FOUND);
+  }
+
   const updatePayload = {
     ...payload,
     ...(payload.name ? { slug: await ensureUniqueSlug(payload.name, id) } : {})
@@ -46,8 +53,8 @@ export const updateBrand = async (id: string, payload: UpdateBrandInput) => {
 
   const brand = await BrandModel.findByIdAndUpdate(id, updatePayload, { new: true });
 
-  if (!brand) {
-    throw new ApiError("Brand not found", HTTP_STATUS.NOT_FOUND);
+  if (payload.logo && payload.logo !== currentBrand.logo) {
+    await deleteCloudinaryImage(currentBrand.logo);
   }
 
   return brand;
@@ -59,6 +66,8 @@ export const deleteBrand = async (id: string) => {
   if (!brand) {
     throw new ApiError("Brand not found", HTTP_STATUS.NOT_FOUND);
   }
+
+  await deleteCloudinaryImage(brand.logo);
 
   return brand;
 };

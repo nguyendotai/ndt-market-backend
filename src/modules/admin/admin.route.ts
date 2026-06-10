@@ -30,6 +30,7 @@ import { adminPromotionsRoute } from "@/modules/promotions/promotions.admin.rout
 import { adminReviewsRoute } from "@/modules/reviews/reviews.admin.route";
 import { adminStoresRoute } from "@/modules/stores/stores.admin.route";
 import { adminUserAddressesRoute } from "@/modules/user-addresses/user-addresses.admin.route";
+import { adminUsersRoute } from "@/modules/users/users.admin.route";
 
 export const adminRoute = Router();
 
@@ -37,6 +38,7 @@ adminRoute.use(authMiddleware, authorizeRoles(ROLES.ADMIN, ROLES.STAFF, ROLES.SU
 
 adminRoute.get("/", getAdmin);
 adminRoute.use("/", authorizeRoles(ROLES.SUPER_ADMIN), adminRbacRoute);
+adminRoute.use("/users", authorizePermissions("customers.manage"), adminUsersRoute);
 adminRoute.use("/user-addresses", authorizePermissions("customers.manage"), adminUserAddressesRoute);
 adminRoute.use("/membership-tiers", authorizePermissions("customers.manage"), membershipTiersRoute);
 adminRoute.use("/loyalty-points", authorizePermissions("customers.manage"), adminLoyaltyPointsRoute);

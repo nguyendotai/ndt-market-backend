@@ -7,10 +7,44 @@ const numberQuerySchema = z.preprocess(
   z.number().optional()
 );
 
+const booleanQuerySchema = z.preprocess((value) => {
+  if (value === undefined || value === "") {
+    return undefined;
+  }
+
+  if (value === "true" || value === true) {
+    return true;
+  }
+
+  if (value === "false" || value === false) {
+    return false;
+  }
+
+  return value;
+}, z.boolean().optional());
+
+const bodyNumberSchema = z.preprocess(
+  (value) => (value === "" ? undefined : value),
+  z.coerce.number()
+);
+
 export const inventoryListQuerySchema = {
   query: z.object({
     storeId: objectIdSchema.optional(),
-    variantId: objectIdSchema.optional()
+    variantId: objectIdSchema.optional(),
+    keyword: z.string().trim().optional(),
+    search: z.string().trim().optional(),
+    lowStock: booleanQuerySchema
+  })
+};
+
+export const stockMovementListQuerySchema = {
+  query: z.object({
+    storeId: objectIdSchema.optional(),
+    variantId: objectIdSchema.optional(),
+    type: z.enum(["IMPORT", "EXPORT", "ADJUST", "RESERVE", "RELEASE"]).optional(),
+    keyword: z.string().trim().optional(),
+    search: z.string().trim().optional()
   })
 };
 
@@ -35,8 +69,8 @@ export const updateInventorySchema = {
   }),
   body: z
     .object({
-      quantity: z.number().int().min(0).optional(),
-      reservedQuantity: z.number().int().min(0).optional()
+      quantity: bodyNumberSchema.pipe(z.number().int().min(0)).optional(),
+      reservedQuantity: bodyNumberSchema.pipe(z.number().int().min(0)).optional()
     })
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field is required"
@@ -47,7 +81,7 @@ export const importInventorySchema = {
   body: z.object({
     store: objectIdSchema,
     variant: objectIdSchema,
-    quantity: z.number().int().positive(),
+    quantity: bodyNumberSchema.pipe(z.number().int().positive()),
     reason: z.string().trim().optional()
   })
 };
@@ -56,7 +90,7 @@ export const adjustInventorySchema = {
   body: z.object({
     store: objectIdSchema,
     variant: objectIdSchema,
-    quantity: z.number().int().refine((value) => value !== 0, {
+    quantity: bodyNumberSchema.pipe(z.number().int()).refine((value) => value !== 0, {
       message: "Quantity must be different from 0"
     }),
     reason: z.string().trim().min(1, "Reason is required")
@@ -67,7 +101,7 @@ export const reserveInventorySchema = {
   body: z.object({
     store: objectIdSchema,
     variant: objectIdSchema,
-    quantity: z.number().int().positive(),
+    quantity: bodyNumberSchema.pipe(z.number().int().positive()),
     reason: z.string().trim().optional()
   })
 };
@@ -81,6 +115,7 @@ export const inventoryNearbyQuerySchema = {
 };
 
 export type InventoryListQuery = z.infer<typeof inventoryListQuerySchema.query>;
+export type StockMovementListQuery = z.infer<typeof stockMovementListQuerySchema.query>;
 export type VariantInventoryQuery = z.infer<typeof variantInventoryQuerySchema.query>;
 export type UpdateInventoryInput = z.infer<typeof updateInventorySchema.body>;
 export type ImportInventoryInput = z.infer<typeof importInventorySchema.body>;

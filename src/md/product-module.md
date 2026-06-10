@@ -10,7 +10,7 @@ Model sản phẩm gồm:
 - `brand`: ObjectId thương hiệu sản phẩm, không bắt buộc và có thể là `null`.
 - `name`: Tên sản phẩm, bắt buộc.
 - `slug`: Slug tự động tạo từ `name`, không nhập từ form tạo.
-- `sku`: Mã SKU, bắt buộc, unique và dùng để tìm kiếm.
+- `sku`: Mã SKU unique và dùng để tìm kiếm. Backend tự sinh khi tạo sản phẩm nếu không gửi.
 - `description`: Mô tả đầy đủ.
 - `shortDescription`: Mô tả ngắn.
 - `unit`: Đơn vị bán chính của sản phẩm.
@@ -29,7 +29,8 @@ Model biến thể gồm:
 
 - `product`: ObjectId sản phẩm.
 - `name`: Tên biến thể, ví dụ `500g`, `1kg`, `Hộp 12 chai`.
-- `barcode`: Mã barcode.
+- `barcode`: Mã barcode unique. Backend tự sinh khi tạo biến thể nếu không gửi.
+- `imageUrl`: Ảnh riêng của biến thể, nên lấy từ API upload Cloudinary.
 - `price`: Giá gốc.
 - `salePrice`: Giá khuyến mãi, phải nhỏ hơn hoặc bằng `price`.
 - `weight`: Khối lượng.
@@ -41,9 +42,18 @@ Model biến thể gồm:
 Model hình ảnh gồm:
 
 - `product`: ObjectId sản phẩm.
-- `imageUrl`: URL ảnh, nên lấy từ API upload Cloudinary.
+- `imageUrl`: URL ảnh gallery/thumbnail cấp sản phẩm, nên lấy từ API upload Cloudinary.
 - `isThumbnail`: Có phải ảnh đại diện hay không.
 - `sortOrder`: Thứ tự hiển thị.
+
+## Khác Nhau Giữa Ảnh Product Và Ảnh Variant
+
+- `ProductImage`: Dùng cho gallery và thumbnail chung của sản phẩm.
+- `ProductVariant.imageUrl`: Dùng cho ảnh riêng của từng biến thể, ví dụ cùng một sản phẩm nhưng biến thể khác màu, khác size, khác quy cách đóng gói.
+
+Frontend nên ưu tiên hiển thị `variant.imageUrl` khi người dùng chọn biến thể. Nếu biến thể không có ảnh riêng, fallback về ảnh thumbnail trong `images`.
+
+Khi cập nhật `ProductVariant.imageUrl`, backend sẽ xóa ảnh Cloudinary cũ. Khi xóa variant, product image hoặc product, backend cũng xóa các ảnh Cloudinary liên quan.
 
 ## Form Tạo Sản Phẩm
 
@@ -62,7 +72,6 @@ Payload phù hợp với model và validation hiện tại:
   "category": "665f00000000000000000001",
   "brand": "665f00000000000000000002",
   "name": "Rau muống sạch",
-  "sku": "NDT-RAU-MUONG-001",
   "description": "Rau muống sạch, tươi mỗi ngày, phù hợp cho bữa ăn gia đình.",
   "shortDescription": "Rau muống sạch, tươi ngon.",
   "unit": "bó",
@@ -81,11 +90,12 @@ Field bắt buộc khi tạo:
 
 - `category`
 - `name`
-- `sku`
 
 Lưu ý khi gửi từ form frontend:
 
 - `category` phải là ObjectId hợp lệ của danh mục.
+- `sku` có thể bỏ trống. Nếu không gửi hoặc gửi chuỗi rỗng `""`, backend tự tạo SKU unique.
+- Nếu gửi `sku` thủ công, SKU sẽ được chuẩn hóa uppercase và phải unique.
 - `brand` có thể bỏ trống. Nếu form gửi `brand` là chuỗi rỗng `""`, backend sẽ lưu là `null`.
 - `ingredients` và `tags` có thể gửi dạng array hoặc chuỗi phân tách bằng dấu phẩy.
 - Các field số như `soldCount`, `ratingAverage`, `ratingCount` có thể gửi dạng number hoặc chuỗi số từ input form.
@@ -94,27 +104,21 @@ Lưu ý khi gửi từ form frontend:
 Field không gửi trong form tạo:
 
 - `slug`: Backend tự generate từ `name`.
+- `sku`: Có thể không gửi, backend tự generate.
 - `variants`: Tạo bằng `POST /api/v1/admin/products/:id/variants`.
 - `images`: Tạo bằng `POST /api/v1/admin/products/:id/images`.
 - `_id`, `createdAt`, `updatedAt`: MongoDB tự tạo.
 
-Gợi ý UI form tạo sản phẩm:
-
-- `category`: Select danh mục.
-- `brand`: Select thương hiệu, cho phép bỏ trống.
-- `name`: Text input.
-- `sku`: Text input.
-- `description`: Textarea.
-- `shortDescription`: Textarea ngắn.
-- `unit`: Text input hoặc select, ví dụ `kg`, `g`, `chai`, `hộp`, `gói`, `bó`.
-- `origin`: Text input hoặc select.
-- `ingredients`: Tag input hoặc danh sách text input.
-- `storageInstruction`: Textarea.
-- `status`: Select enum.
-- `tags`: Tag input.
-- `soldCount`, `ratingAverage`, `ratingCount`: Có thể ẩn khi tạo mới và để mặc định `0`.
-
 ## Form Tạo Biến Thể Sản Phẩm
+
+Trước khi lưu ảnh riêng cho biến thể, upload ảnh lên Cloudinary:
+
+- `POST /api/v1/uploads/image`
+- `multipart/form-data`
+- `folder`: `product`
+- `image`: File ảnh.
+
+Sau đó dùng URL trả về ở field `imageUrl`.
 
 Endpoint:
 
@@ -125,7 +129,7 @@ Payload:
 ```json
 {
   "name": "500g",
-  "barcode": "893000000001",
+  "imageUrl": "https://res.cloudinary.com/demo/image/upload/product-variant.jpg",
   "price": 25000,
   "salePrice": 22000,
   "weight": 500,
@@ -141,11 +145,14 @@ Field bắt buộc:
 
 Lưu ý:
 
+- `imageUrl` là optional.
+- `barcode` có thể bỏ trống. Nếu không gửi hoặc gửi chuỗi rỗng `""`, backend tự tạo barcode unique.
+- Nếu gửi `barcode` thủ công, barcode phải unique.
 - `salePrice` không được lớn hơn `price`.
 - `status` mặc định là `ACTIVE` nếu không truyền.
 - `price`, `salePrice`, `weight` có thể gửi dạng number hoặc chuỗi số từ input form.
 
-## Form Thêm Ảnh Sản Phẩm
+## Form Thêm Ảnh Gallery Sản Phẩm
 
 Trước tiên upload ảnh lên Cloudinary:
 
@@ -154,7 +161,7 @@ Trước tiên upload ảnh lên Cloudinary:
 - `folder`: `product`
 - `image`: File ảnh.
 
-Sau đó dùng URL trả về để thêm ảnh cho sản phẩm:
+Sau đó dùng URL trả về để thêm ảnh gallery/thumbnail cho sản phẩm:
 
 - `POST /api/v1/admin/products/:id/images`
 
@@ -214,9 +221,11 @@ Các route quản trị nằm dưới `/api/v1/admin/products`.
 - `POST /admin/products/:id/variants`: Tạo biến thể cho sản phẩm.
 - `PATCH /admin/products/variants/:variantId`: Cập nhật biến thể.
 - `DELETE /admin/products/variants/:variantId`: Xóa biến thể.
-- `POST /admin/products/:id/images`: Thêm hình ảnh sản phẩm.
+- `POST /admin/products/:id/images`: Thêm hình ảnh gallery/thumbnail sản phẩm.
 - `DELETE /admin/products/images/:imageId`: Xóa hình ảnh sản phẩm.
 
 ## Populate Dữ Liệu
 
 API public populate `category`, `brand`, `variants` và `images` để frontend có đủ dữ liệu hiển thị.
+
+`variants` có thể chứa `imageUrl` riêng của từng biến thể.

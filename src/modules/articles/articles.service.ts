@@ -12,6 +12,7 @@ import {
   UpdateArticleInput
 } from "@/modules/articles/articles.validation";
 import { ApiError } from "@/utils/ApiError";
+import { deleteCloudinaryImage } from "@/utils/cloudinary";
 import { slugify } from "@/utils/slugify";
 
 const ensureUniqueCategorySlug = async (name: string) => {
@@ -76,6 +77,12 @@ export const createArticle = async (
   });
 
 export const updateArticle = async (id: string, payload: UpdateArticleInput) => {
+  const currentArticle = await ArticleModel.findById(id);
+
+  if (!currentArticle) {
+    throw new ApiError("Article not found", HTTP_STATUS.NOT_FOUND);
+  }
+
   const updatePayload = {
     ...payload,
     ...(payload.title ? { slug: await ensureUniqueArticleSlug(payload.title, id) } : {}),
@@ -86,8 +93,8 @@ export const updateArticle = async (id: string, payload: UpdateArticleInput) => 
 
   const article = await ArticleModel.findByIdAndUpdate(id, updatePayload, { new: true });
 
-  if (!article) {
-    throw new ApiError("Article not found", HTTP_STATUS.NOT_FOUND);
+  if (payload.thumbnail && payload.thumbnail !== currentArticle.thumbnail) {
+    await deleteCloudinaryImage(currentArticle.thumbnail);
   }
 
   return article;
@@ -99,6 +106,8 @@ export const deleteArticle = async (id: string) => {
   if (!article) {
     throw new ApiError("Article not found", HTTP_STATUS.NOT_FOUND);
   }
+
+  await deleteCloudinaryImage(article.thumbnail);
 
   return article;
 };

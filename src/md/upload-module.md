@@ -31,6 +31,13 @@ Response:
 - Ảnh được lưu trên Cloudinary theo folder `ndt-market/<folder>`.
 - Các field lưu ảnh trong hệ thống như `category.image`, `brand.logo`, `product imageUrl`, `banner.imageUrl`, `article.thumbnail`, `user.avatar` và `review.images` nên lưu URL Cloudinary trả về từ API upload.
 
+## Quy tắc xóa ảnh cũ
+
+- Khi cập nhật field ảnh sang URL Cloudinary mới, backend sẽ xóa ảnh Cloudinary cũ sau khi cập nhật database thành công.
+- Khi xóa record có ảnh, backend sẽ xóa ảnh Cloudinary liên quan.
+- Các module đã cleanup ảnh cũ gồm category, brand, banner, article, product gallery và product variant.
+- Nếu URL không phải Cloudinary, backend bỏ qua để không ảnh hưởng dữ liệu seed/demo hoặc ảnh ngoài hệ thống.
+
 ## Phân quyền
 
 - Admin và Super Admin được upload ảnh `product`, `category`, `brand`, `banner`, `article`.

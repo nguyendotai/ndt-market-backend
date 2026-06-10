@@ -47,14 +47,23 @@ Quy ước role admin:
 
 ```json
 {
-  "fullName": "Nguyen Van A",
-  "phone": "0900000001",
   "email": "customer@example.com",
   "password": "Customer@123",
-  "confirmPassword": "Customer@123",
+  "confirmPassword": "Customer@123"
+}
+```
+
+Optional fields:
+
+```json
+{
+  "fullName": "Nguyen Van A",
+  "phone": "0900000001",
   "avatar": "https://res.cloudinary.com/demo/avatar.jpg"
 }
 ```
+
+Ghi chú: key chuẩn là `confirmPassword`; backend cũng hỗ trợ alias `confirmpassword` và `confirm_password` khi test bằng Postman.
 
 - Response example:
 
@@ -175,6 +184,19 @@ Quy ước role admin:
   "data": null
 }
 ```
+
+## User Address
+
+## User Management
+
+Các API này dùng cho admin quản lý khách hàng và nhân viên.
+
+| Method | URL | Auth required | Role required | Request body | Query params | Response example |
+| --- | --- | --- | --- | --- | --- | --- |
+| `GET` | `/admin/users` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `customers.manage` | Không | `keyword?`, `search?`, `role?`, `status?`, `page?`, `limit?` | `{"success":true,"data":[{"_id":"...","fullName":"Nguyen Van A","email":"a@example.com","role":"CUSTOMER","status":"ACTIVE"}],"meta":{"page":1,"limit":20,"total":1,"totalPages":1}}` |
+| `GET` | `/admin/users/:id` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `customers.manage` | Không | Không | `{"success":true,"data":{"_id":"...","fullName":"Nguyen Van A","email":"a@example.com","role":"CUSTOMER","status":"ACTIVE"}}` |
+| `PATCH` | `/admin/users/:id/status` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `customers.manage` | `{ "status": "BLOCKED" }` | Không | `{"success":true,"data":{"_id":"...","status":"BLOCKED"}}` |
+| `PATCH` | `/admin/users/:id/role` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `customers.manage` | `{ "role": "STAFF", "permissions": ["catalog.manage", "orders.manage"] }` | Không | `{"success":true,"data":{"_id":"...","role":"STAFF","permissions":["catalog.manage","orders.manage"]}}` |
 
 ## User Address
 
@@ -354,10 +376,10 @@ Sort hỗ trợ: `newest`, `oldest`, `price_asc`, `price_desc`, `best_selling`, 
 
 | Method | URL | Auth required | Role required | Request body | Query params | Response example |
 | --- | --- | --- | --- | --- | --- | --- |
-| `POST` | `/admin/products` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `catalog.manage` | `{ "category": "...", "brand": "...", "name": "Rau muống", "sku": "NDT-0001", "description": "...", "shortDescription": "...", "unit": "gói", "origin": "Việt Nam", "ingredients": [], "storageInstruction": "...", "status": "ACTIVE", "tags": [] }` | Không | `{"success":true,"data":{"_id":"...","slug":"rau-muong"}}` |
+| `POST` | `/admin/products` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `catalog.manage` | `{ "category": "...", "brand": "...", "name": "Rau muống", "sku": "optional-manual-sku", "description": "...", "shortDescription": "...", "unit": "gói", "origin": "Việt Nam", "ingredients": [], "storageInstruction": "...", "status": "ACTIVE", "tags": [] }` | Không | `{"success":true,"data":{"_id":"...","slug":"rau-muong","sku":"NDT-RAUMUONG-MABC1231"}}` |
 | `PATCH` | `/admin/products/:id` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `catalog.manage` | Một hoặc nhiều field product | Không | `{"success":true,"data":{"_id":"...","name":"Rau muống mới"}}` |
 | `DELETE` | `/admin/products/:id` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `catalog.manage` | Không | Không | `{"success":true,"data":null}` |
-| `POST` | `/admin/products/:id/variants` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `catalog.manage` | `{ "name": "500g", "barcode": "893...", "price": 25000, "salePrice": 22000, "weight": 500, "unit": "g", "status": "ACTIVE" }` | Không | `{"success":true,"data":{"_id":"...","product":"..."}}` |
+| `POST` | `/admin/products/:id/variants` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `catalog.manage` | `{ "name": "500g", "barcode": "optional-manual-barcode", "imageUrl": "https://res.cloudinary.com/...", "price": 25000, "salePrice": 22000, "weight": 500, "unit": "g", "status": "ACTIVE" }` | Không | `{"success":true,"data":{"_id":"...","product":"...","barcode":"8931234567891","imageUrl":"https://res.cloudinary.com/..."}}` |
 | `PATCH` | `/admin/products/variants/:variantId` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `catalog.manage` | Một hoặc nhiều field variant | Không | `{"success":true,"data":{"_id":"...","price":24000}}` |
 | `DELETE` | `/admin/products/variants/:variantId` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `catalog.manage` | Không | Không | `{"success":true,"data":null}` |
 | `POST` | `/admin/products/:id/images` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `catalog.manage` | `{ "imageUrl": "https://res.cloudinary.com/...", "isThumbnail": true, "sortOrder": 1 }` | Không | `{"success":true,"data":{"_id":"...","imageUrl":"https://res.cloudinary.com/..."}}` |
@@ -377,7 +399,8 @@ Sort hỗ trợ: `newest`, `oldest`, `price_asc`, `price_desc`, `best_selling`, 
 
 | Method | URL | Auth required | Role required | Request body | Query params | Response example |
 | --- | --- | --- | --- | --- | --- | --- |
-| `GET` | `/admin/inventories` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `inventory.manage` | Không | `storeId?`, `variantId?` | `{"success":true,"data":[{"_id":"...","quantity":50,"reservedQuantity":3,"availableQuantity":47}]}` |
+| `GET` | `/admin/inventories` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `inventory.manage` | Không | `storeId?`, `variantId?`, `keyword?`, `search?`, `lowStock?` | `{"success":true,"data":[{"_id":"...","productName":"Rau muống sạch","productSku":"NDT-RAU-MUONG-001","variantName":"500g","barcode":"893...","storeName":"NDT Market Quận 1","quantity":50,"reservedQuantity":3,"availableQuantity":47,"stockStatus":"IN_STOCK"}]}` |
+| `GET` | `/admin/inventories/movements` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `inventory.manage` | Không | `storeId?`, `variantId?`, `type?`, `keyword?`, `search?` | `{"success":true,"data":[{"_id":"...","productName":"Rau muống sạch","variantName":"500g","storeName":"NDT Market Quận 1","type":"IMPORT","quantity":20,"reason":"Nhập hàng"}]}` |
 | `PATCH` | `/admin/inventories/:id` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `inventory.manage` | `{ "quantity": 50, "reservedQuantity": 2 }` | Không | `{"success":true,"data":{"_id":"...","availableQuantity":48}}` |
 | `POST` | `/admin/inventories/import` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `inventory.manage` | `{ "store": "...", "variant": "...", "quantity": 20, "reason": "Nhập hàng" }` | Không | `{"success":true,"data":{"inventory":{"_id":"..."},"movement":{"type":"IMPORT"}}}` |
 | `POST` | `/admin/inventories/adjust` | Có | `ADMIN/STAFF/SUPER_ADMIN` + `inventory.manage` | `{ "store": "...", "variant": "...", "quantity": -5, "reason": "Kiểm kho" }` | Không | `{"success":true,"data":{"inventory":{"_id":"..."},"movement":{"type":"ADJUST"}}}` |

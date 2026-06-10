@@ -257,6 +257,7 @@ const seedProducts = async (
         product: product._id,
         name: variantIndex === 0 ? "Mac dinh" : `${variantIndex + 1} goi`,
         barcode: `893${String(index + 1).padStart(5, "0")}${variantIndex}`,
+        imageUrl: imageUrl(`product-${index + 1}-variant-${variantIndex + 1}`),
         price,
         salePrice: variantIndex === 0 && index % 4 === 0 ? price - 2000 : undefined,
         weight: 500 + variantIndex * 250,

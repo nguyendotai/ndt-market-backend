@@ -29,8 +29,10 @@ export const register = async (payload: RegisterInput) => {
     throw new ApiError("Email already exists", HTTP_STATUS.CONFLICT);
   }
 
+  const fallbackFullName = payload.email.split("@")[0];
+
   const user = await UserModel.create({
-    fullName: payload.fullName,
+    fullName: payload.fullName ?? fallbackFullName,
     phone: payload.phone,
     email: payload.email,
     password: payload.password,

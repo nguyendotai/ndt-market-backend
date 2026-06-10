@@ -19,7 +19,7 @@ export const createApp = (): Application => {
       credentials: true
     })
   );
-  app.use(express.json({ limit: "10mb" }));
+  app.use(express.json({ limit: "10mb", type: ["application/json", "text/plain"] }));
   app.use(express.urlencoded({ extended: true }));
   app.use(
     morgan("combined", {
