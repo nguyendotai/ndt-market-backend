@@ -30,3 +30,7 @@ Thư mục này lưu tài liệu mô tả chức năng backend cho website siêu
 - `health-api.md`: API kiểm tra trạng thái server.
 - `database.md`: Kết nối MongoDB bằng Mongoose.
 - `error-handling.md`: Global error handler và định dạng lỗi.
+
+## Tài liệu API tổng hợp
+
+- `../../API_DOCUMENTATION.md`: Tài liệu API toàn bộ backend, chia theo module và có method, URL, auth, role, body, query, response mẫu.

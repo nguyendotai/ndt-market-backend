@@ -8,6 +8,67 @@ import {
 const objectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid id");
 const optionalUrlSchema = z.string().trim().url("URL is invalid").optional();
 
+const emptyStringToUndefined = (value: unknown) => {
+  if (value === "") {
+    return undefined;
+  }
+
+  return value;
+};
+
+const optionalNumberBodySchema = z.preprocess(
+  emptyStringToUndefined,
+  z.coerce.number().min(0).optional()
+);
+
+const optionalIntBodySchema = z.preprocess(
+  emptyStringToUndefined,
+  z.coerce.number().int().min(0).optional()
+);
+
+const optionalStatusSchema = <T extends Record<string, string>>(enumObject: T) =>
+  z.preprocess(emptyStringToUndefined, z.nativeEnum(enumObject).optional());
+
+const optionalBooleanBodySchema = z.preprocess((value) => {
+  if (value === "") {
+    return undefined;
+  }
+
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  return value;
+}, z.boolean().optional());
+
+const stringListBodySchema = z.preprocess((value) => {
+  if (value === undefined || value === "") {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value.split(",").map((item) => item.trim()).filter(Boolean);
+  }
+
+  return value;
+}, z.array(z.string().trim().min(1)).default([]));
+
+const optionalBrandSchema = z.preprocess((value) => {
+  if (value === "") {
+    return null;
+  }
+
+  return value;
+}, objectIdSchema.nullable().optional());
+
 const numberQuerySchema = z.preprocess(
   (value) => (value === undefined || value === "" ? undefined : Number(value)),
   z.number().min(0).optional()
@@ -117,30 +178,30 @@ export const productImageIdSchema = {
 
 const productPayloadSchema = z.object({
   category: objectIdSchema,
-  brand: objectIdSchema.nullable().optional(),
+  brand: optionalBrandSchema,
   name: z.string().trim().min(1, "Name is required"),
   sku: z.string().trim().min(1, "SKU is required"),
   description: z.string().trim().optional(),
   shortDescription: z.string().trim().optional(),
   unit: z.string().trim().optional(),
   origin: z.string().trim().optional(),
-  ingredients: z.array(z.string().trim().min(1)).default([]),
+  ingredients: stringListBodySchema,
   storageInstruction: z.string().trim().optional(),
-  status: z.nativeEnum(PRODUCT_STATUSES).optional(),
-  tags: z.array(z.string().trim().min(1)).default([]),
-  soldCount: z.number().int().min(0).optional(),
-  ratingAverage: z.number().min(0).max(5).optional(),
-  ratingCount: z.number().int().min(0).optional()
+  status: optionalStatusSchema(PRODUCT_STATUSES),
+  tags: stringListBodySchema,
+  soldCount: optionalIntBodySchema,
+  ratingAverage: optionalNumberBodySchema.pipe(z.number().max(5).optional()),
+  ratingCount: optionalIntBodySchema
 });
 
 const variantBasePayloadSchema = z.object({
     name: z.string().trim().min(1, "Variant name is required"),
     barcode: z.string().trim().optional(),
-    price: z.number().min(0),
-    salePrice: z.number().min(0).optional(),
-    weight: z.number().min(0).optional(),
+    price: z.coerce.number().min(0),
+    salePrice: optionalNumberBodySchema,
+    weight: optionalNumberBodySchema,
     unit: z.string().trim().optional(),
-    status: z.nativeEnum(PRODUCT_VARIANT_STATUSES).optional()
+    status: optionalStatusSchema(PRODUCT_VARIANT_STATUSES)
   });
 
 const variantPayloadSchema = variantBasePayloadSchema.refine(
@@ -153,8 +214,8 @@ const variantPayloadSchema = variantBasePayloadSchema.refine(
 
 const imagePayloadSchema = z.object({
   imageUrl: optionalUrlSchema.unwrap(),
-  isThumbnail: z.boolean().optional(),
-  sortOrder: z.number().int().optional()
+  isThumbnail: optionalBooleanBodySchema,
+  sortOrder: z.preprocess(emptyStringToUndefined, z.coerce.number().int().optional())
 });
 
 export const createProductSchema = {
